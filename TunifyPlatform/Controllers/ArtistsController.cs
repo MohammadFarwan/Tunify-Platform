@@ -16,10 +16,12 @@ namespace TunifyPlatform.Controllers
     public class ArtistsController : ControllerBase
     {
         private readonly IArtist _artist;
+        private readonly ISong _song;
 
-        public ArtistsController(IArtist Artist)
+        public ArtistsController(IArtist Artist, ISong song)
         {
             _artist = Artist;
+            _song = song;
         }
 
         // GET: api/Artists
@@ -60,5 +62,47 @@ namespace TunifyPlatform.Controllers
             var deletedEmployee = _artist.DeleteAsync(id);
             return Ok(deletedEmployee);
         }
+
+
+        // Adding a song to an artist
+        // POST: api/artists/{artistId}/songs/{songId}
+        [HttpPost]
+        [Route("{artistId}/songs/{songId}")]
+        public async Task<IActionResult> AddSongToArtist(int artistId, int songId)
+        {
+            var artist = await _artist.GetByIdAsync(artistId);
+            if (artist == null)
+            {
+                return NotFound();
+            }
+
+            var song = await _song.GetByIdAsync(songId);
+            if (song == null)
+            {
+                return NotFound();
+            }
+
+            song.ArtistId = artistId;
+            await _song.UpdateAsync(songId, song);
+
+            return Ok(song);
+        }
+
+        // Retrieve all songs by an artist
+        // GET: api/artists/{artistId}/songs
+        [HttpGet("{artistId}/songs")]
+        public async Task<ActionResult<IEnumerable<Song>>> GetSongsByArtist(int artistId)
+        {
+            var artist = await _artist.GetByIdAsync(artistId);
+            if (artist == null)
+            {
+                return NotFound();
+            }
+
+            // Assuming you have a method in ISong to get songs by artist ID
+            var songs = await _song.GetSongsByArtistAsync(artistId);
+            return Ok(songs);
+        }
+
     }
 }

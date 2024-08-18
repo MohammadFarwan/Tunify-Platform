@@ -35,6 +35,7 @@ namespace TunifyPlatform.Data
                 .WithMany(u => u.Playlists)
                 .HasForeignKey(p => p.UserId);
 
+            // Define Relationsips between Song & Artist
             modelBuilder.Entity<Song>()
                 .HasOne(s => s.Artist)
                 .WithMany(a => a.Songs)
@@ -54,7 +55,7 @@ namespace TunifyPlatform.Data
                 .HasForeignKey(ps => ps.PlaylistId);
 
             modelBuilder.Entity<PlaylistSongs>()
-                .HasOne(ps => ps.Song)
+                .HasOne(ps => ps.Song)  // One-to-many relationship
                 .WithMany(s => s.PlaylistSongs)
                 .HasForeignKey(ps => ps.SongId);
 
@@ -78,7 +79,8 @@ namespace TunifyPlatform.Data
             modelBuilder.Entity<Artist>().HasData(
                 new Artist { Id = 1, Name = "Artist 1" },
                 new Artist { Id = 2, Name = "Artist 2" },
-                new Artist { Id = 3, Name = "Artist 3" }
+                new Artist { Id = 3, Name = "Artist 3" },
+                new Artist { Id = 4, Name = "Artist 4" }
             );
 
             modelBuilder.Entity<Album>().HasData(

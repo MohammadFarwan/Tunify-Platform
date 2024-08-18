@@ -9,5 +9,7 @@ namespace TunifyPlatform.Repositories.interfaces
         Task<Song> InsertAsync(Song song);
         Task<Song> UpdateAsync(int id, Song song);
         Task<Song> DeleteAsync(int songId);
+
+        Task<List<Song>> GetSongsByArtistAsync(int artistId);
     }
 }
