@@ -1,64 +1,59 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TunifyPlatform.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using TunifyPlatform.Models;
-using TunifyPlatform.Repositories.interfaces;
+using TunifyPlatform.Repositories.Interfaces;
 
 namespace TunifyPlatform.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase
+    [Route("api/[controller]")]
+    public class UserController : ControllerBase
     {
-        private readonly IUser _user;
+        private readonly IUserRepository _userRepository;
 
-        public UsersController(IUser user)
+        public UserController(IUserRepository userRepository)
         {
-            _user = user;
+            _userRepository = userRepository;
         }
 
-        // GET: api/Users
-        [Route("/users/getAll")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        public async Task<IActionResult> GetAllUsers()
         {
-            return await _user.GetAllAsync();
+            var users = await _userRepository.GetAllUsersAsync();
+            return Ok(users);
         }
 
-        // GET: api/Users/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
+        public async Task<IActionResult> GetUserById(int id)
         {
-            return await _user.GetByIdAsync(id);
+            var user = await _userRepository.GetUserByIdAsync(id);
+            if (user == null)
+                return NotFound();
+
+            return Ok(user);
         }
 
-        // PUT: api/Users/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
-        {
-            var updateUser = await _user.UpdateAsync(id, user);
-            return Ok(updateUser);
-        }
-
-        // POST: api/Users
         [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        public async Task<IActionResult> CreateUser(User user)
         {
-            var newUser = await _user.InsertAsync(user);
-            return Ok(newUser);
+            await _userRepository.AddUserAsync(user);
+            return CreatedAtAction(nameof(GetUserById), new { id = user.UserId }, user);
         }
 
-        // DELETE: api/Users/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUser(int id, User user)
+        {
+            if (id != user.UserId)
+                return BadRequest();
+
+            await _userRepository.UpdateUserAsync(user);
+            return NoContent();
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var deletedEmployee = _user.DeleteAsync(id);
-            return Ok(deletedEmployee);
+            await _userRepository.DeleteUserAsync(id);
+            return NoContent();
         }
     }
 }

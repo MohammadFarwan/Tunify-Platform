@@ -1,13 +1,13 @@
 ﻿using TunifyPlatform.Models;
 
-namespace TunifyPlatform.Repositories.interfaces
+namespace TunifyPlatform.Repositories.Interfaces
 {
-    public interface IUser
+    public interface IUserRepository
     {
-        Task<List<User>> GetAllAsync();
-        Task<User> GetByIdAsync(int userId);
-        Task<User> InsertAsync(User user);
-        Task<User> UpdateAsync(int id, User user);
-        Task<User> DeleteAsync(int userId);
+        Task<IEnumerable<User>> GetAllUsersAsync();
+        Task<User> GetUserByIdAsync(int id);
+        Task AddUserAsync(User user);
+        Task UpdateUserAsync(User user);
+        Task DeleteUserAsync(int id);
     }
 }
