@@ -11,5 +11,6 @@
         public Album Album { get; set; }
         public TimeSpan Duration { get; set; }
         public ICollection<PlaylistSongs> PlaylistSongs { get; set; }
+        public ICollection<ArtistSongs> ArtistSongs { get; set; }
     }
 }

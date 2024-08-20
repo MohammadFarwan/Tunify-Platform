@@ -1,64 +1,59 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TunifyPlatform.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using TunifyPlatform.Models;
-using TunifyPlatform.Repositories.interfaces;
+using TunifyPlatform.Repositories.Interfaces;
 
 namespace TunifyPlatform.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class SongsController : ControllerBase
+    [Route("api/[controller]")]
+    public class SongController : ControllerBase
     {
-        private readonly ISong _song;
+        private readonly ISongRepository _songRepository;
 
-        public SongsController(ISong Song)
+        public SongController(ISongRepository songRepository)
         {
-            _song = Song;
+            _songRepository = songRepository;
         }
 
-        // GET: api/Songs
-        [Route("/songs/getAll")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Song>>> GetSongs()
+        public async Task<IActionResult> GetAllSongs()
         {
-            return await _song.GetAllAsync();
+            var songs = await _songRepository.GetAllSongsAsync();
+            return Ok(songs);
         }
 
-        // GET: api/Songs/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Song>> GetSong(int id)
+        public async Task<IActionResult> GetSongById(int id)
         {
-            return await _song.GetByIdAsync(id);
+            var song = await _songRepository.GetSongByIdAsync(id);
+            if (song == null)
+                return NotFound();
+
+            return Ok(song);
         }
 
-        // PUT: api/Songs/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutSong(int id, Song Song)
-        {
-            var updateSong = await _song.UpdateAsync(id, Song);
-            return Ok(updateSong);
-        }
-
-        // POST: api/Songs
         [HttpPost]
-        public async Task<ActionResult<Song>> PostSong(Song Song)
+        public async Task<IActionResult> CreateSong(Song song)
         {
-            var newSong = await _song.InsertAsync(Song);
-            return Ok(newSong);
+            await _songRepository.AddSongAsync(song);
+            return CreatedAtAction(nameof(GetSongById), new { id = song.Id }, song);
         }
 
-        // DELETE: api/Songs/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateSong(int id, Song song)
+        {
+            if (id != song.Id)
+                return BadRequest();
+
+            await _songRepository.UpdateSongAsync(song);
+            return NoContent();
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSong(int id)
         {
-            var deletedEmployee = _song.DeleteAsync(id);
-            return Ok(deletedEmployee);
+            await _songRepository.DeleteSongAsync(id);
+            return NoContent();
         }
     }
 }

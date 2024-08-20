@@ -1,48 +1,49 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TunifyPlatform.Data;
 using TunifyPlatform.Models;
-using TunifyPlatform.Repositories.interfaces;
+using TunifyPlatform.Repositories.Interfaces;
 
 namespace TunifyPlatform.Repositories.Services
 {
-    public class PlaylistService : IPlayList
+    public class PlaylistRepository : IPlaylistRepository
     {
         private readonly TunifyDbContext _context;
 
-        public PlaylistService(TunifyDbContext context)
+        public PlaylistRepository(TunifyDbContext context)
         {
             _context = context;
         }
 
-        public async Task<List<Playlist>> GetAllAsync()
+        public async Task<IEnumerable<Playlist>> GetAllPlaylistsAsync()
         {
-            var allPlaylists = await _context.Playlists.ToListAsync();
-            return allPlaylists;
+            return await _context.Playlists.ToListAsync();
         }
 
-        public async Task<Playlist> GetByIdAsync(int PlaylistId) => await _context.Playlists.FindAsync(PlaylistId);
-
-        public async Task<Playlist> InsertAsync(Playlist Playlist)
+        public async Task<Playlist> GetPlaylistByIdAsync(int id)
         {
-            _context.Playlists.Add(Playlist);
-            await _context.SaveChangesAsync();
-            return Playlist;
+            return await _context.Playlists.FindAsync(id);
         }
 
-        public async Task<Playlist> UpdateAsync(int id, Playlist Playlist)
+        public async Task AddPlaylistAsync(Playlist playlist)
         {
-            var exsitingEmployee = await _context.Playlists.FindAsync(id);
-            exsitingEmployee = Playlist;
+            await _context.Playlists.AddAsync(playlist);
             await _context.SaveChangesAsync();
-            return Playlist;
         }
 
-        public async Task<Playlist> DeleteAsync(int id)
+        public async Task UpdatePlaylistAsync(Playlist playlist)
         {
-            var Playlist = await GetByIdAsync(id);
-            _context.Entry(Playlist).State = EntityState.Deleted;
+            _context.Playlists.Update(playlist);
             await _context.SaveChangesAsync();
-            return Playlist;
+        }
+
+        public async Task DeletePlaylistAsync(int id)
+        {
+            var playlist = await _context.Playlists.FindAsync(id);
+            if (playlist != null)
+            {
+                _context.Playlists.Remove(playlist);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

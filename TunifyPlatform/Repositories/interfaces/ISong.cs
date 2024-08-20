@@ -1,13 +1,13 @@
 ﻿using TunifyPlatform.Models;
 
-namespace TunifyPlatform.Repositories.interfaces
+namespace TunifyPlatform.Repositories.Interfaces
 {
-    public interface ISong
+    public interface ISongRepository
     {
-        Task<List<Song>> GetAllAsync();
-        Task<Song> GetByIdAsync(int songId);
-        Task<Song> InsertAsync(Song song);
-        Task<Song> UpdateAsync(int id, Song song);
-        Task<Song> DeleteAsync(int songId);
+        Task<IEnumerable<Song>> GetAllSongsAsync();
+        Task<Song> GetSongByIdAsync(int id);
+        Task AddSongAsync(Song song);
+        Task UpdateSongAsync(Song song);
+        Task DeleteSongAsync(int id);
     }
 }

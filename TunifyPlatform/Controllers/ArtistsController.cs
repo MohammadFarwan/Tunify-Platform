@@ -1,64 +1,59 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TunifyPlatform.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using TunifyPlatform.Models;
-using TunifyPlatform.Repositories.interfaces;
+using TunifyPlatform.Repositories.Interfaces;
 
 namespace TunifyPlatform.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class ArtistsController : ControllerBase
+    [Route("api/[controller]")]
+    public class ArtistController : ControllerBase
     {
-        private readonly IArtist _artist;
+        private readonly IArtistRepository _artistRepository;
 
-        public ArtistsController(IArtist Artist)
+        public ArtistController(IArtistRepository artistRepository)
         {
-            _artist = Artist;
+            _artistRepository = artistRepository;
         }
 
-        // GET: api/Artists
-        [Route("/artists/getAll")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Artist>>> GetArtists()
+        public async Task<IActionResult> GetAllArtists()
         {
-            return await _artist.GetAllAsync();
+            var artists = await _artistRepository.GetAllArtistsAsync();
+            return Ok(artists);
         }
 
-        // GET: api/Artists/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Artist>> GetArtist(int id)
+        public async Task<IActionResult> GetArtistById(int id)
         {
-            return await _artist.GetByIdAsync(id);
+            var artist = await _artistRepository.GetArtistByIdAsync(id);
+            if (artist == null)
+                return NotFound();
+
+            return Ok(artist);
         }
 
-        // PUT: api/Artists/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutArtist(int id, Artist Artist)
-        {
-            var updateArtist = await _artist.UpdateAsync(id, Artist);
-            return Ok(updateArtist);
-        }
-
-        // POST: api/Artists
         [HttpPost]
-        public async Task<ActionResult<Artist>> PostArtist(Artist Artist)
+        public async Task<IActionResult> CreateArtist(Artist artist)
         {
-            var newArtist = await _artist.InsertAsync(Artist);
-            return Ok(newArtist);
+            await _artistRepository.AddArtistAsync(artist);
+            return CreatedAtAction(nameof(GetArtistById), new { id = artist.Id }, artist);
         }
 
-        // DELETE: api/Artists/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateArtist(int id, Artist artist)
+        {
+            if (id != artist.Id)
+                return BadRequest();
+
+            await _artistRepository.UpdateArtistAsync(artist);
+            return NoContent();
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteArtist(int id)
         {
-            var deletedEmployee = _artist.DeleteAsync(id);
-            return Ok(deletedEmployee);
+            await _artistRepository.DeleteArtistAsync(id);
+            return NoContent();
         }
     }
 }

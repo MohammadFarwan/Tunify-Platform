@@ -1,48 +1,49 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TunifyPlatform.Data;
 using TunifyPlatform.Models;
-using TunifyPlatform.Repositories.interfaces;
+using TunifyPlatform.Repositories.Interfaces;
 
 namespace TunifyPlatform.Repositories.Services
 {
-    public class UserService : IUser
+    public class UserRepository : IUserRepository
     {
         private readonly TunifyDbContext _context;
 
-        public UserService(TunifyDbContext context)
+        public UserRepository(TunifyDbContext context)
         {
             _context = context;
         }
 
-        public async Task<List<User>> GetAllAsync()
+        public async Task<IEnumerable<User>> GetAllUsersAsync()
         {
-            var allUsers = await _context.Users.ToListAsync();
-            return allUsers;
+            return await _context.Users.ToListAsync();
         }
 
-        public async Task<User> GetByIdAsync(int UserId) => await _context.Users.FindAsync(UserId);
-
-        public async Task<User> InsertAsync(User User)
+        public async Task<User> GetUserByIdAsync(int id)
         {
-            _context.Users.Add(User);
-            await _context.SaveChangesAsync();
-            return User;
+            return await _context.Users.FindAsync(id);
         }
 
-        public async Task<User> UpdateAsync(int id, User User)
+        public async Task AddUserAsync(User user)
         {
-            var exsitingEmployee = await _context.Users.FindAsync(id);
-            exsitingEmployee = User;
+            await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
-            return User;
         }
 
-        public async Task<User> DeleteAsync(int id)
+        public async Task UpdateUserAsync(User user)
         {
-            var User = await GetByIdAsync(id);
-            _context.Entry(User).State = EntityState.Deleted;
+            _context.Users.Update(user);
             await _context.SaveChangesAsync();
-            return User;
+        }
+
+        public async Task DeleteUserAsync(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user != null)
+            {
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

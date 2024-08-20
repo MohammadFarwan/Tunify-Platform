@@ -1,48 +1,49 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TunifyPlatform.Data;
 using TunifyPlatform.Models;
-using TunifyPlatform.Repositories.interfaces;
+using TunifyPlatform.Repositories.Interfaces;
 
 namespace TunifyPlatform.Repositories.Services
 {
-    public class SongService : ISong
+    public class SongRepository : ISongRepository
     {
         private readonly TunifyDbContext _context;
 
-        public SongService(TunifyDbContext context)
+        public SongRepository(TunifyDbContext context)
         {
             _context = context;
         }
 
-        public async Task<List<Song>> GetAllAsync()
+        public async Task<IEnumerable<Song>> GetAllSongsAsync()
         {
-            var allSongs = await _context.Songs.ToListAsync();
-            return allSongs;
+            return await _context.Songs.ToListAsync();
         }
 
-        public async Task<Song> GetByIdAsync(int SongId) => await _context.Songs.FindAsync(SongId);
-
-        public async Task<Song> InsertAsync(Song Song)
+        public async Task<Song> GetSongByIdAsync(int id)
         {
-            _context.Songs.Add(Song);
-            await _context.SaveChangesAsync();
-            return Song;
+            return await _context.Songs.FindAsync(id);
         }
 
-        public async Task<Song> UpdateAsync(int id, Song Song)
+        public async Task AddSongAsync(Song song)
         {
-            var exsitingEmployee = await _context.Songs.FindAsync(id);
-            exsitingEmployee = Song;
+            await _context.Songs.AddAsync(song);
             await _context.SaveChangesAsync();
-            return Song;
         }
 
-        public async Task<Song> DeleteAsync(int id)
+        public async Task UpdateSongAsync(Song song)
         {
-            var Song = await GetByIdAsync(id);
-            _context.Entry(Song).State = EntityState.Deleted;
+            _context.Songs.Update(song);
             await _context.SaveChangesAsync();
-            return Song;
+        }
+
+        public async Task DeleteSongAsync(int id)
+        {
+            var song = await _context.Songs.FindAsync(id);
+            if (song != null)
+            {
+                _context.Songs.Remove(song);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

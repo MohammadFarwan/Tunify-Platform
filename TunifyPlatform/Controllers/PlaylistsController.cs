@@ -1,64 +1,59 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TunifyPlatform.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using TunifyPlatform.Models;
-using TunifyPlatform.Repositories.interfaces;
+using TunifyPlatform.Repositories.Interfaces;
 
 namespace TunifyPlatform.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class PlaylistsController : ControllerBase
+    [Route("api/[controller]")]
+    public class PlaylistController : ControllerBase
     {
-        private readonly IPlayList _playlist;
+        private readonly IPlaylistRepository _playlistRepository;
 
-        public PlaylistsController(IPlayList Playlist)
+        public PlaylistController(IPlaylistRepository playlistRepository)
         {
-            _playlist = Playlist;
+            _playlistRepository = playlistRepository;
         }
 
-        // GET: api/Playlists
-        [Route("/playlists/getAll")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Playlist>>> GetPlaylists()
+        public async Task<IActionResult> GetAllPlaylists()
         {
-            return await _playlist.GetAllAsync();
+            var playlists = await _playlistRepository.GetAllPlaylistsAsync();
+            return Ok(playlists);
         }
 
-        // GET: api/Playlists/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Playlist>> GetPlaylist(int id)
+        public async Task<IActionResult> GetPlaylistById(int id)
         {
-            return await _playlist.GetByIdAsync(id);
+            var playlist = await _playlistRepository.GetPlaylistByIdAsync(id);
+            if (playlist == null)
+                return NotFound();
+
+            return Ok(playlist);
         }
 
-        // PUT: api/Playlists/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutPlaylist(int id, Playlist Playlist)
-        {
-            var updatePlaylist = await _playlist.UpdateAsync(id, Playlist);
-            return Ok(updatePlaylist);
-        }
-
-        // POST: api/Playlists
         [HttpPost]
-        public async Task<ActionResult<Playlist>> PostPlaylist(Playlist Playlist)
+        public async Task<IActionResult> CreatePlaylist(Playlist playlist)
         {
-            var newPlaylist = await _playlist.InsertAsync(Playlist);
-            return Ok(newPlaylist);
+            await _playlistRepository.AddPlaylistAsync(playlist);
+            return CreatedAtAction(nameof(GetPlaylistById), new { id = playlist.Id }, playlist);
         }
 
-        // DELETE: api/Playlists/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdatePlaylist(int id, Playlist playlist)
+        {
+            if (id != playlist.Id)
+                return BadRequest();
+
+            await _playlistRepository.UpdatePlaylistAsync(playlist);
+            return NoContent();
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePlaylist(int id)
         {
-            var deletedEmployee = _playlist.DeleteAsync(id);
-            return Ok(deletedEmployee);
+            await _playlistRepository.DeletePlaylistAsync(id);
+            return NoContent();
         }
     }
 }
