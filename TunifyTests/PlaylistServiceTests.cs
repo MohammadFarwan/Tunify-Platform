@@ -74,7 +74,7 @@ public class ArtistRepositoryTests
         var mockArtistSet = new Mock<DbSet<Artist>>();
         mockContext.Setup(c => c.Artists).Returns(mockArtistSet.Object);
 
-        var repository = new ArtistService(mockContext.Object);
+        var repository = new ArtistRepository(mockContext.Object);
         var newArtist = new Artist { Id = 3, Name = "Artist 3" };
 
         // Act

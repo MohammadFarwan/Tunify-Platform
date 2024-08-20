@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using NuGet.Protocol.Core.Types;
 using TunifyPlatform.Data;
-using TunifyPlatform.Repositories.interfaces;
+using TunifyPlatform.Repositories.Interfaces;
 using TunifyPlatform.Repositories.Services;
 
 namespace TunifyPlatform
@@ -11,20 +10,31 @@ namespace TunifyPlatform
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            builder.Services.AddControllers();
 
             string ConnectionStringVar = builder.Configuration.GetConnectionString("DefaultConnection");
-            builder.Services.AddDbContext<TunifyDbContext>(optionsX => optionsX.UseSqlServer(ConnectionStringVar));
 
-            builder.Services.AddScoped<IArtist, ArtistService>();
-            builder.Services.AddScoped<IPlayList, PlaylistService>();
-            builder.Services.AddScoped<ISong, SongService>();
-            builder.Services.AddScoped<IUser, UserService>();
+            builder.Services.AddDbContext<TunifyDbContext>(opt => opt.UseSqlServer(ConnectionStringVar));
+
+            //register the repositeries
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IPlaylistRepository, PlaylistRepository>();
+            builder.Services.AddScoped<ISongRepository, SongRepository>();
+            builder.Services.AddScoped<IArtistRepository, ArtistRepository>();
+
+            builder.Services.AddControllers();
+
+            builder.WebHost.ConfigureKestrel(options =>
+            {
+                options.ListenLocalhost(5002);
+            });
+
 
             var app = builder.Build();
-            app.MapControllers();
 
-            app.MapGet("/", () => "Hello World!");
+            //app.MapGet("/", () => "This is my first app");
+
+            app.UseRouting();
+            app.MapControllers();
 
             app.Run();
         }
