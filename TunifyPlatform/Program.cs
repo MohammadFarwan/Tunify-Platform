@@ -3,6 +3,9 @@ using TunifyPlatform.Data;
 using TunifyPlatform.Repositories.Interfaces;
 using TunifyPlatform.Repositories.Services;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Identity;
+using TunifyPlatform.Repositories.interfaces;
+using TunifyPlatform.Models;
 
 namespace TunifyPlatform
 {
@@ -17,6 +20,13 @@ namespace TunifyPlatform
 
             // Register DbContext with SQL Server
             builder.Services.AddDbContext<TunifyDbContext>(opt => opt.UseSqlServer(ConnectionStringVar));
+
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+            .AddEntityFrameworkStores<TunifyDbContext>();
+
+            // Important: let the program know about IAccount & IdentityAccountService
+            builder.Services.AddScoped<IAccount, IdentityAccountService>();
+
 
             // Register the repositories
             builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -41,6 +51,22 @@ namespace TunifyPlatform
             
 
             var app = builder.Build();
+
+            // Add redirection from root URL to Swagger UI
+            app.Use(async (context, next) =>
+            {
+                if (context.Request.Path == "/")
+                {
+                    context.Response.Redirect("/TunifySwagger/index.html");
+                }
+                else
+                {
+                    await next();
+                }
+            });
+
+            app.UseAuthentication();
+
 
             // Enable routing
             app.UseRouting();

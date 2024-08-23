@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using TunifyPlatform.Models;
 
 namespace TunifyPlatform.Data
 {
-    public class TunifyDbContext : DbContext
+    public class TunifyDbContext : IdentityDbContext<ApplicationUser>
     {
         public TunifyDbContext(DbContextOptions<TunifyDbContext> options) : base(options)
         {
@@ -56,19 +58,20 @@ namespace TunifyPlatform.Data
                 .WithMany(s => s.PlaylistSongs)
                 .HasForeignKey(ps => ps.SongId);
 
-            // Configuring the ArtistSong relationship
             modelBuilder.Entity<ArtistSongs>()
-                .HasKey(a => new { a.ArtistId, a.SongId });
+    .HasKey(a => new { a.ArtistId, a.SongId });
 
             modelBuilder.Entity<ArtistSongs>()
                 .HasOne(a => a.Artist)
                 .WithMany(a => a.ArtistSongs)
-                .HasForeignKey(a => a.ArtistId);
+                .HasForeignKey(a => a.ArtistId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ArtistSongs>()
                 .HasOne(a => a.Song)
-                .WithMany(a => a.ArtistSongs)
-                .HasForeignKey(a => a.SongId);
+                .WithMany(s => s.ArtistSongs)
+                .HasForeignKey(a => a.SongId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Seed data
             modelBuilder.Entity<Subscription>().HasData(
