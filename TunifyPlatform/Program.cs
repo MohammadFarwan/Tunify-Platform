@@ -108,7 +108,7 @@ namespace TunifyPlatform
             });
 
             app.UseAuthentication();
-            app.UseAuthentication();
+            app.UseAuthorization();
 
 
             // Enable routing
