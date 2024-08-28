@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TunifyPlatform.Models;
 using TunifyPlatform.Repositories.Interfaces;
 
 namespace TunifyPlatform.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class ArtistController : ControllerBase
@@ -54,6 +56,20 @@ namespace TunifyPlatform.Controllers
         {
             await _artistRepository.DeleteArtistAsync(id);
             return NoContent();
+        }
+
+        //[HttpPost("{artistId}/songs/{songId}")]
+        //public async Task<IActionResult> AddSongToArtist(int artistId, int songId)
+        //{
+        //    await _artistRepository.AddSongToArtistAsync(artistId, songId);
+        //    return Ok();
+        //}
+
+        [HttpGet("{artistId}/songs")]
+        public async Task<IActionResult> GetSongsByArtist(int artistId)
+        {
+            var songs = await _artistRepository.GetSongsByArtistAsync(artistId);
+            return Ok(songs);
         }
     }
 }

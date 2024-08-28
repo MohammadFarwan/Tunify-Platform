@@ -10,6 +10,7 @@ namespace TunifyPlatform.Repositories.Interfaces
         Task UpdateArtistAsync(Artist artist);
         Task DeleteArtistAsync(int id);
         Task<IEnumerable<Song>> GetSongsByArtistAsync(int artistId);
+        //Task AddSongToArtistAsync(int artistId, int songId);
         Task RemoveSongFromArtistAsync(int artistId, int songId);
     }
 }

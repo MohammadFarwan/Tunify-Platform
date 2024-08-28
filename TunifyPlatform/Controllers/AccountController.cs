@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TunifyPlatform.Models.DTO;
 using TunifyPlatform.Repositories.interfaces;
 
 namespace TunifyPlatform.Controllers
 {
+    
     [Route("api/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
@@ -35,6 +37,8 @@ namespace TunifyPlatform.Controllers
             return BadRequest();
         }
 
+
+
         // Login
         [HttpPost("Login")]
         public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
@@ -50,6 +54,8 @@ namespace TunifyPlatform.Controllers
         }
 
         // Logout
+        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "User")]
         [HttpPost("Logout")]
         public async Task<IActionResult> Logout()
         {

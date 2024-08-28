@@ -11,10 +11,14 @@ namespace TunifyPlatform.Repositories.Services
         private UserManager<ApplicationUser> _userManager;
         private SignInManager<ApplicationUser> _signInManager;
 
-        public IdentityAccountService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        // Inject jwt service 
+        private JwtTokenService _jwtTokenService;
+
+        public IdentityAccountService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, JwtTokenService jwtTokenService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _jwtTokenService = jwtTokenService;
         }
 
         // Register Method
@@ -30,10 +34,16 @@ namespace TunifyPlatform.Repositories.Services
 
             if (result.Succeeded)
             {
+
+                // add roles to new registed user
+                await _userManager.AddToRolesAsync(user, registerUserDto.Roles);
+
                 return new UserDto()
                 {
                     Id = user.Id,
-                    Username = user.UserName
+                    Username = user.UserName,
+                    Token = await _jwtTokenService.GenerateToken(user, System.TimeSpan.FromMinutes(10)),
+                    Roles = await _userManager.GetRolesAsync(user),
                 };
             }
 
@@ -63,7 +73,8 @@ namespace TunifyPlatform.Repositories.Services
                     return new UserDto()
                     {
                         Id = user.Id,
-                        Username = user.UserName
+                        Username = user.UserName,
+                        Token = await _jwtTokenService.GenerateToken(user, System.TimeSpan.FromMinutes(10)),
                     };
                 }
             }
