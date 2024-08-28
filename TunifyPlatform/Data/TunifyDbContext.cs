@@ -124,6 +124,26 @@ namespace TunifyPlatform.Data
                 new ArtistSongs { ArtistId = 1, SongId = 4 },
                 new ArtistSongs { ArtistId = 2, SongId = 5 }
             );
+
+            seedRoles(modelBuilder, "Admin");
+            seedRoles(modelBuilder, "User");
+        }
+
+        private void seedRoles(ModelBuilder modelBuilder, string roleName, params string[] permission)
+        {
+            var role = new IdentityRole
+            {
+                Id = roleName.ToLower(),
+                Name = roleName,
+                NormalizedName = roleName.ToUpper(),
+                ConcurrencyStamp = Guid.Empty.ToString()
+            };
+
+            // add claims for the users
+            // complete
+
+
+            modelBuilder.Entity<IdentityRole>().HasData(role);
         }
     }
 }
